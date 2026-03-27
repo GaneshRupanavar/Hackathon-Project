@@ -1,0 +1,5 @@
+{
+  "name": "Atmospheric Travel Explorer",
+  "description": "A travel-planning tool that visualizes real-time weather and air-quality (PM2.5/PM10) to help travelers choose safer and more comfortable destinations.",
+  "requestFramePermissions": ["geolocation"]
+}

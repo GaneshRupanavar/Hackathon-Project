@@ -1,0 +1,78 @@
+// ===============================================================
+// Assumed Data Model
+// ===============================================================
+//
+// Collection: favorites
+// Document ID: auto-generated
+// Fields:
+//   - uid: string (required) - Owner's user ID
+//   - cityName: string (required) - Name of the city
+//   - lat: number (required) - Latitude
+//   - lon: number (required) - Longitude
+//   - createdAt: timestamp (required) - Creation time
+//
+// Collection: searchHistory
+// Document ID: auto-generated
+// Fields:
+//   - uid: string (required) - Owner's user ID
+//   - query: string (required) - Search query
+//   - timestamp: timestamp (required) - Search time
+//
+// ===============================================================
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isDocOwner() {
+      return isAuthenticated() && request.auth.uid == resource.data.uid;
+    }
+
+    function isValidFavorite(data) {
+      return data.keys().hasAll(['uid', 'cityName', 'lat', 'lon', 'createdAt']) &&
+             data.uid is string &&
+             data.cityName is string && data.cityName.size() > 0 && data.cityName.size() < 100 &&
+             data.lat is number && data.lon is number &&
+             data.createdAt is timestamp;
+    }
+
+    function isValidSearch(data) {
+      return data.keys().hasAll(['uid', 'query', 'timestamp']) &&
+             data.uid is string &&
+             data.query is string && data.query.size() > 0 && data.query.size() < 200 &&
+             data.timestamp is timestamp;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /favorites/{favoriteId} {
+      allow read: if isDocOwner();
+      allow create: if isAuthenticated() && isValidFavorite(request.resource.data) && request.resource.data.uid == request.auth.uid;
+      allow update: if isDocOwner() && isValidFavorite(request.resource.data) && request.resource.data.uid == resource.data.uid;
+      allow delete: if isDocOwner();
+    }
+
+    match /searchHistory/{searchId} {
+      allow read: if isDocOwner();
+      allow create: if isAuthenticated() && isValidSearch(request.resource.data) && request.resource.data.uid == request.auth.uid;
+      allow delete: if isDocOwner();
+    }
+
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+  }
+}

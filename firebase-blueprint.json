@@ -1,0 +1,38 @@
+{
+  "entities": {
+    "Favorite": {
+      "title": "Favorite City",
+      "description": "A city saved by the user for quick access to atmospheric data.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "The user ID of the owner." },
+        "cityName": { "type": "string", "description": "The name of the city." },
+        "lat": { "type": "number", "description": "Latitude of the city." },
+        "lon": { "type": "number", "description": "Longitude of the city." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "When the favorite was created." }
+      },
+      "required": ["uid", "cityName", "lat", "lon", "createdAt"]
+    },
+    "SearchHistory": {
+      "title": "Search History",
+      "description": "A record of a user's search for atmospheric data.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "The user ID of the owner." },
+        "query": { "type": "string", "description": "The search query string." },
+        "timestamp": { "type": "string", "format": "date-time", "description": "When the search occurred." }
+      },
+      "required": ["uid", "query", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/favorites/{favoriteId}": {
+      "schema": "Favorite",
+      "description": "Collection of user-saved favorite cities."
+    },
+    "/searchHistory/{searchId}": {
+      "schema": "SearchHistory",
+      "description": "Collection of user search history records."
+    }
+  }
+}
